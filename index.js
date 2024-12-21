@@ -21,6 +21,7 @@ const dbConfig = {
 const appPool = new sql.ConnectionPool(dbConfig);
 
 app.use(cors());
+app.use(express.json())
 
 app.get('/detayraporlari', (req, res) => {
     const rapor = raporlar[req.query.rapor]
@@ -32,6 +33,12 @@ app.get('/detayraporlari', (req, res) => {
     }
     return res.json(recordset)
   })
+})
+
+app.patch('/sipariskapat', (req, res) => {
+  const { siparisler } = req.body
+  if (siparisler.length > 0) res.status(200).send({ message: 'siparisler kapatilmistir' })
+  console.log(siparisler)
 })
 
 // connect the pool and start the web server when done// connects to 
