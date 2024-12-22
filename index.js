@@ -14,7 +14,7 @@ const dbConfig = {
     options: {
         trustServerCertificate: true,
         trustedConnection: false,
-        enableArithAbort: true
+        enableArithAbort: true,
     },
     port: parseInt(process.env.DB_PORT)
 };
@@ -37,11 +37,19 @@ app.get('/detayraporlari', (req, res) => {
 
 app.patch('/sipariskapat', (req, res) => {
   const { siparisler } = req.body
-  if (siparisler.length > 0) res.status(200).send({ message: 'siparisler kapatilmistir' })
-  console.log(siparisler)
+  if (!siparisler) return res.status(500).send({ message: "Kapatılacak sipariş yoktur" })
+  const siparisKapaQuery = `update Erp_OrderReceiptItem set IsClosed='1' where RecId in (${siparisler.join(',')})`
+  req.app.locals.db.query(siparisKapaQuery, (err, recordset) => {
+    if (err) {
+      console.error(err)
+      res.status(500).send({message:'Siparişler kapatılamadı'})
+      return
+    }
+    return res.status(200).send({message: 'Siparişler kapatılmıştır.'})
+  })
 })
 
-// connect the pool and start the web server when done// connects to 
+// connect the pool and start the web server when done
 appPool.connect().then(function(pool) {
   app.locals.db = pool;
   const server = app.listen(3000, function () {
@@ -53,6 +61,6 @@ appPool.connect().then(function(pool) {
   console.error('Error creating connection pool', err)
 });
 
-app.listen(PORT, HOST, (req, res) => {
-    console.log(`server running on port: ${PORT} and host: ${HOST}`)
+app.listen(PORT, (req, res) => {
+    console.log(`server running on port: ${PORT}`)
 })
