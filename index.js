@@ -38,7 +38,7 @@ app.get('/detayraporlari', (req, res) => {
 app.patch('/sipariskapat', (req, res) => {
   const { siparisler } = req.body
   if (!siparisler) return res.status(500).send({ message: "Kapatılacak sipariş yoktur" })
-  const siparisKapaQuery = `update Erp_OrderReceiptItem set IsClosed='1' where RecId in (${siparisler.join(',')})`
+  const siparisKapaQuery = `some query that runs`
   req.app.locals.db.query(siparisKapaQuery, (err, recordset) => {
     if (err) {
       console.error(err)
