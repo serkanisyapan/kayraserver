@@ -2,8 +2,11 @@ import express from "express";
 import cors from "cors";
 import sql from "mssql";
 import { raporlar } from "./queries.js";
+import { auth } from "express-oauth2-jwt-bearer";
 
 const PORT = process.env.SERVER_PORT;
+const AUTH_AUDIENCE = process.env.AUTH_AUDIENCE;
+const AUTH_ISSUER = process.env.AUTH_ISSUER;
 const app = express();
 const dbConfig = {
 	user: process.env.DB_USER,
@@ -18,9 +21,15 @@ const dbConfig = {
 	port: Number.parseInt(process.env.DB_PORT),
 };
 const appPool = new sql.ConnectionPool(dbConfig);
+const jwtCheck = auth({
+	audience: AUTH_AUDIENCE,
+	issuerBaseURL: AUTH_ISSUER,
+	tokenSigningAlg: "RS256",
+});
 
 app.use(cors());
 app.use(express.json());
+app.use(jwtCheck);
 
 // seçtiğimiz raporu getirir
 app.get("/detayraporlari", (req, res) => {
